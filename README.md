@@ -3,6 +3,18 @@
 ## Descripción General
 Definido para la propuesta de agente de ventas Isabella de RedTec para Grupo Paz.
 
+## Estado del Proyecto
+**Última actualización:** 07 de Julio, 2026
+
+| Aspecto | Estado |
+|---|---|
+| Propuesta comercial | Enviada (PR-2026-GP01, válida hasta 25-jul-2026) |
+| Bloqueador CRM Celina | Pendiente – credenciales de solo lectura escaladas a TI por Jhon (Celina) |
+| Stack tecnológico | **Decidido** – Python + LangGraph + Postgres/pgvector, multi-tenant vía JWT (ver `08_investigacion_tecnologias.md`) |
+| Plataforma unificada (`realstate.redtec.ai`) | En arranque – repositorio base a cargo de Jimmi Pachón y Jorge Calderón |
+| Integración CRM Celina | No iniciada – depende de la resolución del bloqueador de credenciales |
+| Documentos pendientes | `05_arquitectura_integracion.md`, `06_condiciones_servicio.md`, `07_tarea_bloqueadora.md` |
+
 ## Índice de Archivos
 
 - [01_propuesta.md](#01propuesta.md) – Detalles comerciales de la propuesta RedTec
@@ -12,6 +24,7 @@ Definido para la propuesta de agente de ventas Isabella de RedTec para Grupo Paz
 - [05_arquitectura_integracion.md](#05arquitectura_integracion.md) – Escenarios técnicos para integración
 - [06_condiciones_servicio.md](#06condiciones_servicio.md) – Condiciones de servicio y modelo de pago
 - [07_tarea_bloqueadora.md](#07tarea_bloqueadora.md) – Próximos pasos y tarea bloqueadora principal
+- [08_investigacion_tecnologias.md](#08investigacion_tecnologias.md) – Investigación de stack tecnológico (LangGraph, Postgres, multi-tenant) para la plataforma unificada de agentes
 
 ## Notas Importantes para LLM/AI/Especialistas
 - Uso de capas y protección de IP en la API
