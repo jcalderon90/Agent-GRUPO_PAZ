@@ -14,7 +14,7 @@
 
 | Paso | Decisión | Estado |
 |---|---|---|
-| Paso 1 | Lenguaje **TypeScript/Node** + motor de agente con **loop de tool-use propio** sobre `@anthropic-ai/sdk`. Descartados LangChain (peso/opacidad) y LangGraph (abstracción prematura; se puede envolver luego). | ✅ |
+| Paso 1 | Lenguaje **TypeScript/Node** + motor de agente con **loop de tool-use propio**, usando **OpenRouter** (`https://openrouter.ai/api/v1`) vía SDK `openai`, con tool-calling en formato OpenAI. Modelo **configurable por variable de entorno** (`OPENROUTER_MODEL`), sin fijar uno todavía. Descartados LangChain (peso/opacidad) y LangGraph (abstracción prematura; se puede envolver luego). | ✅ (revisado 2026-07-02) |
 | Paso 2 | Toolchain: Node + `tsx` + `vitest` + `zod`, módulos **ESM**. Estructura de carpetas fijada. | ✅ |
 | Paso 3 | Tipos del dominio (`Lot`, `FinancingPlan`, `Quotation`) y `ConversationState`/`Lead`. | 🔶 En curso |
 
@@ -62,10 +62,10 @@ Clientes CRM  ──►  CelinaClient (mock | http)   +   LeadsClient (Grupo Paz
 
 ```
 src/
-  config.ts              # env vars (ANTHROPIC_API_KEY, CELINA_BASE_URL, flags) validadas con zod
+  config.ts              # env vars (OPENROUTER_API_KEY, OPENROUTER_MODEL, CELINA_BASE_URL, flags) validadas con zod
   index.ts               # entrypoint del CLI de chat
   agent/
-    engine.ts            # loop de tool-use con @anthropic-ai/sdk
+    engine.ts            # loop de tool-use con SDK `openai` apuntando a OpenRouter (baseURL)
     prompts.ts           # SYSTEM_PROMPT (persona + flujo 6 pasos + reglas de negocio)
     tools.ts             # definición de tools (JSON schema vía zod) + dispatch a handlers
   state/
@@ -89,7 +89,7 @@ tests/
   tools.test.ts          # tools contra CelinaMockClient (vitest)
   state.test.ts          # transiciones de estado / scoring
   agent.smoke.test.ts    # smoke del loop con el SDK mockeado
-package.json             # deps: @anthropic-ai/sdk, zod, sharp; dev: tsx, vitest, typescript, @types/node
+package.json             # deps: openai, zod, sharp; dev: tsx, vitest, typescript, @types/node
 tsconfig.json            # ESM, strict
 .env.example             # variables sin secretos reales
 README_DEV.md            # cómo correr el CLI, variables, estado del CRM
@@ -99,8 +99,8 @@ README_DEV.md            # cómo correr el CLI, variables, estado del CRM
 
 ### 1. Agente — `agent/engine.ts`, `agent/prompts.ts`, `agent/tools.ts`
 - `SYSTEM_PROMPT` codifica: persona de Isabella (asesora de ventas de Celina), el **flujo de 6 pasos** y las **reglas de negocio** (nunca link del mapa; usar imagen estática; PDF con plantilla; escalar a humano cuando lo pidan; español).
-- `engine.ts`: recibe el turno del usuario + `ConversationState`, llama a Claude con las tools, ejecuta el bucle `tool_use → tool_result` hasta que Claude produce texto final. Devuelve texto + adjuntos (imagen/PDF) que el canal enviará.
-- `tools.ts`: schema de cada tool (vía zod) y `dispatch(name, input, ctx)` que enruta al cliente CRM / assets y **actualiza el estado**.
+- `engine.ts`: recibe el turno del usuario + `ConversationState`, llama al modelo (vía OpenRouter) con las tools en formato OpenAI, ejecuta el bucle `tool_calls → tool result` hasta que el modelo produce texto final. Devuelve texto + adjuntos (imagen/PDF) que el canal enviará.
+- `tools.ts`: schema de cada tool (vía zod, convertido a JSON schema estilo OpenAI) y `dispatch(name, input, ctx)` que enruta al cliente CRM / assets y **actualiza el estado**.
 
 ### 2. Herramientas (mapeadas a endpoints)
 | Tool | Acción | Endpoint / origen |
@@ -132,7 +132,7 @@ README_DEV.md            # cómo correr el CLI, variables, estado del CRM
 
 ## Verificación (end-to-end del M1)
 
-1. Instalar: `npm install`; copiar `.env.example` → `.env` y poner `ANTHROPIC_API_KEY`.
+1. Instalar: `npm install`; copiar `.env.example` → `.env` y poner `OPENROUTER_API_KEY` y `OPENROUTER_MODEL`.
 2. Correr el CLI: `npm run dev` (o `tsx src/index.ts`). Simular una conversación completa: dar presupuesto/zona/uso → verificar que Isabella califica (hot/warm/cold), llama `buscar_lotes` (mock) y presenta 3-5 lotes, genera una imagen de mapa (placeholder con lote resaltado), simula cuotas y entrega un PDF de cotización en la carpeta de salida.
 3. Confirmar reglas de negocio: en ningún momento envía un **link** de mapa (solo imagen); el PDF se genera; se registra un lead con su score.
 4. Tests: `npm test` (vitest) — verde en tools (contra mock), transiciones de estado/scoring y smoke del loop del agente.

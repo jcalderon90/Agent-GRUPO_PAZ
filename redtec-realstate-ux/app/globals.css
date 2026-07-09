@@ -1,0 +1,224 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: garoo --default, garoo-dark --prefersdark;
+}
+
+/* ── Tema DaisyUI: RedTec Real Estate ───────────────────────────────────────
+   Personalizar --color-primary/secondary/accent para cada cliente si en el
+   futuro se necesita un deploy dedicado; hoy sirve a todos los tenants desde
+   el mismo login/UI (ver LoginForm.tsx / AgentsHome.tsx, que leen estas
+   mismas variables vía var(--color-primary) / var(--color-accent)).
+   ────────────────────────────────────────────────────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "garoo";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #F5F3EE;
+  --color-base-200: #EDEAE4;
+  --color-base-300: #DEDAD3;
+  --color-base-content: #161B22;
+  --color-primary: #4F46E5;
+  --color-primary-content: #ffffff;
+  --color-secondary: #7C3AED;
+  --color-secondary-content: #ffffff;
+  --color-accent: #10B981;
+  --color-accent-content: #ffffff;
+  --color-neutral: #0E0E10;
+  --color-neutral-content: #F6F4F0;
+  --color-info: #3B82F6;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  /* Tokens estructurales (bordes, radios, tamaños) — sin esto, componentes
+     DaisyUI que dependen de calc() con estas variables (toggle, checkbox,
+     radio, etc.) colapsan a un tamaño casi invisible. */
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* ── Tema DaisyUI: RedTec Real Estate — OSCURO ──────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "garoo-dark";
+  color-scheme: dark;
+  --color-base-100: #16181C;
+  --color-base-200: #1E2127;
+  --color-base-300: #2A2E36;
+  --color-base-content: #E7E5E0;
+  --color-primary: #6D64F0;
+  --color-primary-content: #0A0818;
+  --color-secondary: #9A7BF5;
+  --color-secondary-content: #140A24;
+  --color-accent: #34D399;
+  --color-accent-content: #04140D;
+  --color-neutral: #0E0E10;
+  --color-neutral-content: #F6F4F0;
+  --color-info: #60A5FA;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-error: #F87171;
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* ── dark: prefix → se activa con data-theme="garoo-dark" ───────────────── */
+@custom-variant dark (&:where([data-theme=garoo-dark], [data-theme=garoo-dark] *));
+
+/* ── Utilidades globales ─────────────────────────────────────────────────────*/
+.safe-bottom {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+
+/* Sub-nav con scroll horizontal + fade a la derecha (CrmPage/ConfigPage/KnowledgePage) */
+.sub-nav-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.sub-nav-scroll::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent 0%, var(--color-base-100) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Scrollbar sutil */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* ── Agents Home ─────────────────────────────────────────────────────────── */
+.agents-home-section {
+  min-height: 100svh;
+  width: 100%;
+  background: #0E0E10;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Orb motifs — usan var(--color-primary)/var(--color-accent), cambian solos con el branding */
+.agents-home-section::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -80px;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 25%, transparent) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.agents-home-section::after {
+  content: '';
+  position: absolute;
+  bottom: 60px;
+  left: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 16%, transparent) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.agents-home-nav {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 60px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.agents-home-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: max(52px, 7vh) 60px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.agent-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  aspect-ratio: 3 / 4;
+  background: #161618;
+  border: 1px solid rgba(255,255,255,0.07);
+  cursor: default;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.agent-active {
+  cursor: pointer;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.agent-active:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 60%, transparent),
+    0 16px 40px color-mix(in srgb, var(--color-primary) 25%, transparent),
+    0 4px 12px rgba(0,0,0,0.3);
+}
+
+.agent-active:active {
+  transform: translateY(-2px) scale(0.99);
+  transition-duration: 80ms;
+}
+
+.agent-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 12px;
+  z-index: 2;
+}
+
+.safe-x { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+
+@media (max-width: 1100px) {
+  .agents-home-nav { padding: 24px 32px 0; }
+  .agents-home-inner { padding: max(44px, 6vh) 32px 48px; }
+  .agents-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .agents-home-nav { padding: 18px 16px 0; }
+  .agents-home-inner { padding: max(36px, 5vh) 16px 36px; }
+  .agents-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 360px) {
+  .agents-grid { gap: 8px; }
+  .agent-card-info { padding: 8px 10px; font-size: 12px; }
+}

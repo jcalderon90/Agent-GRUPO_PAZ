@@ -1,0 +1,14 @@
+services:
+  dashboard:
+    build: .
+    container_name: ${NEXT_PUBLIC_PROJECT_NAME:-garoo-dashboard}
+    env_file: .env.local
+    ports:
+      - "3031:3031"
+    restart: unless-stopped
+    networks:
+      - redtec-network
+
+networks:
+  redtec-network:
+    external: true
