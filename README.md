@@ -10,11 +10,23 @@ Definido para la propuesta de agente de ventas Isabella de RedTec para Grupo Paz
 |---|---|
 | Propuesta comercial | Enviada (PR-2026-GP01, válida hasta 25-jul-2026) |
 | Bloqueador CRM Celina | Pendiente – credenciales de solo lectura escaladas a TI por Jhon (Celina); sigue sin resolverse |
-| Stack tecnológico | **Decidido** – Python + LangGraph + Postgres/pgvector, multi-tenant vía JWT (ver `08_investigacion_tecnologias.md`) |
+| Stack tecnológico | **Decidido (cerrado 13-jul-2026)** – TypeScript/Node + LangGraph.js + Postgres/pgvector, multi-tenant vía JWT, sobre el template Garoo existente (`redtec-realstate-api`/`-ux`); reemplaza la vía Python planteada inicialmente en `08_investigacion_tecnologias.md` (ver nota de actualización ahí y §5 de `09_revision_codigo_agent.md`) |
+| Proveedor LLM | **Decidido** – OpenRouter (`OPENROUTER_API_KEY` + `CLAUDE_MODEL=anthropic/claude-sonnet-4.6`), no Anthropic directo; el código ya soportaba ambos, solo se fijó la config |
 | Plataforma unificada (`realstate.redtec.ai`) | En arranque – repositorio base a cargo de Jimmi Pachón y Jorge Calderón |
-| Repos `redtec-realstate-api` / `-ux` (Garoo, TypeScript/LangGraph) | Revisados a fondo (código fuente clonado, no solo docs) – motor genérico multi-tenant maduro (5 tools de negocio, webhook multi-canal vía ManyChat, PDFs, colas); tenant `grupopaz` ya referenciado en el seed de admin, pero **sin** personalización de Isabella, sin tools de CRM Celina, sin modelo de "lote"; discrepancia sigue vigente con el stack Python decidido (ver `09_revision_codigo_agent.md`) |
-| Integración CRM Celina | No iniciada – depende de la resolución del bloqueador de credenciales; no existe ningún cliente HTTP hacia la API de Celina en el código revisado |
+| Repos `redtec-realstate-api` / `-ux` (Garoo, TypeScript/LangGraph) | **Adoptados como base de Isabella.** Motor genérico multi-tenant maduro (webhook multi-canal vía ManyChat, PDFs, colas); tenant `grupopaz` ya seedeado. **Capa de negocio de Isabella ya implementada**: 7 tools (`buscar_lotes`, `detalle_lote`, `consultar_financiamiento`, `generar_imagen_mapa`, `generar_cotizacion_pdf`, `registrar_lead`, `escalar_a_humano`), `system_prompt` con flujo de 6 pasos, `CelinaClient` mock+http (ver `09_revision_codigo_agent.md` §7). `npm run typecheck` limpio |
+| Integración CRM Celina | **Código listo en modo mock** (`CELINA_MODE=mock`, datos de ejemplo); implementación `http` real ya escrita pero inactiva — depende de la resolución del bloqueador de credenciales para activarse y validarse contra staging |
+| Prueba end-to-end del agente | **En curso** – smoke test `src/scripts/smoke_test_isabella.ts` en `Agent/redtec-realstate-api` (TenantDb en memoria, sin Postgres real, 6 turnos simulados); pendiente que Jorge lo corra con su `OPENROUTER_API_KEY` y comparta el resultado |
 | Documentos pendientes | `06_condiciones_servicio.md`, `07_tarea_bloqueadora.md` |
+
+## Pendientes
+
+- **Correr el smoke test con LLM real** — Jorge debe poner su `OPENROUTER_API_KEY` en `Agent/redtec-realstate-api/.env` y ejecutar `npx tsx src/scripts/smoke_test_isabella.ts`; revisar juntos la salida (respuestas del agente + campos que `registrar_lead` guardó).
+- **Bloqueador CRM Celina** — credenciales read-only escaladas a TI por Jhon (Celina), sin fecha de resolución. Bloquea activar `CELINA_MODE=http` y validar `celina.http.ts` contra staging.
+- **Reemplazar placeholders de mapa/PDF** (`src/assets/maps.ts`, `src/assets/quotes.ts`, ambos con `mock://...`) por las capturas estáticas reales del mapa y la plantilla PDF oficial de Celina, una vez resuelto el bloqueador.
+- **Confirmar `xx_clients` como CRM real de Grupo Paz** — verificar que la tool `registrar_lead` escribe donde realmente vive el CRM de Grupo Paz (no solo una tabla interna del template).
+- **Redactar documentos pendientes:** `06_condiciones_servicio.md` (condiciones de servicio y modelo de pago) y `07_tarea_bloqueadora.md` (próximos pasos y tarea bloqueadora principal).
+- **Decisión sin resolver:** definir modelo de sincronización con Celina — Polling vs. Webhooks vs. Bidireccional (ver `02_crm_celina.md`) — antes de construir la integración `http` real.
+- **Repo `redtec-realstate-ux`** (dashboard) — todavía sin revisar a fondo si está listo para mostrar conversaciones/config de Isabella.
 
 ## Índice de Archivos
 

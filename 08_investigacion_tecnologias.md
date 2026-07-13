@@ -4,6 +4,8 @@
 **Origen:** Checkpoint de Agentes Real Estate - 06 de Julio, 2026 (Fernando Ortiz, Jorge Calderón, Jimmi Pachón, José Santisteban)
 **Alcance:** Decisión de stack tecnológico para la nueva plataforma unificada de agentes inmobiliarios, con **Grupo Paz / Isabella** como primer caso de implementación concreto.
 
+> **Actualización 13-jul-2026 — decisión de lenguaje revertida:** se cierra la discrepancia detectada en `09_revision_codigo_agent.md` a favor de **TypeScript**: Isabella se construye sobre el template Garoo ya existente (`redtec-realstate-api`/`-ux`, LangGraph.js), no sobre un repositorio nuevo en Python. Las demás recomendaciones de este documento (Postgres, RLS multi-tenant por `tenant_id`, JWT, pgvector, patrón supervisor/subagentes vía tool-calling) se mantienen vigentes — el template ya las cubre en TypeScript. Donde este documento diga "Python", léase "TypeScript/Node (LangGraph.js)".
+
 ## 1. Contexto y Decisión Ya Tomada en Reunión
 
 El equipo tiene hoy varios agentes construidos con arquitecturas distintas entre sí (Mundo Verde/Acuavita, Altura, Rosero, Spectrum, Bravante), cada uno con su propio patrón en TypeScript. Se acordó:

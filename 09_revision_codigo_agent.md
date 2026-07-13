@@ -31,9 +31,9 @@ Boilerplate funcional pero genérico, en etapa de andamiaje (multi-tenant, RAG, 
 
 ## 5. Implicación para el plan
 
-1. Definir si Grupo Paz continúa sobre este template TypeScript (`Agent/`) como base rápida, o se espera al repositorio Python + LangGraph decidido en `08_investigacion_tecnologias.md` — hoy ambas rutas coexisten sin resolución explícita.
-2. Si se usa `Agent/` como base: completar `agent.ts` o consolidar todo en `langgraph_agent.ts`, e implementar `CelinaClient` (mock primero, por el bloqueo de credenciales) siguiendo el diseño ya de `05_plan_desarrollo_codigo.md`.
-3. Mantener `Agent/` fuera de este repositorio de documentación (ya en `.gitignore`); si se decide adoptarlo, debe vivir en su propio repositorio versionado, no dentro de `Agent-GRUPO_PAZ`.
+1. **Decisión cerrada (13-jul-2026): se adopta el template TypeScript (`Agent/`, `redtec-realstate-api`/`-ux`) como base de Isabella**, en lugar de levantar el repositorio Python + LangGraph propuesto en `08_investigacion_tecnologias.md`. Esa decisión de stack queda superada en cuanto al lenguaje/framework de orquestación (ver nota en `08_investigacion_tecnologias.md` §1); el resto de las recomendaciones de esa investigación (Postgres, RLS multi-tenant por `tenant_id`, JWT, pgvector) sigue aplicando porque el template ya las implementa en TypeScript.
+2. Completar `agent.ts` o consolidar todo en `langgraph_agent.ts`, e implementar `CelinaClient` (mock primero, por el bloqueo de credenciales) siguiendo el diseño de `05_plan_desarrollo_codigo.md`.
+3. Mantener `Agent/` fuera de este repositorio de documentación (ya en `.gitignore`); vive en su propio repositorio versionado (`redtec-realstate-api`/`-ux`), no dentro de `Agent-GRUPO_PAZ`.
 
 ## 6. Revisión ampliada (13-jul-2026)
 
@@ -50,6 +50,19 @@ Repositorios clonados directamente de GitHub (`GarooInc/redtec-realstate-api` y 
 - El concepto de "lote" en el modelo de datos: `schema.sql` solo tiene `xx_projects`/`xx_units` (unidad genérica: código, nombre, tipo, precio), sin campos de manzana/lote, m², ni posición en plano — no alcanza para representar un lote de Celina ni para generar el recorte de mapa estático que exige la regla de negocio (nunca enviar el link del mapa interactivo).
 - Seed del `system_prompt`/personalidad de Isabella para el tenant `grupopaz`.
 
-**Conclusión:** el motor genérico (multi-tenant, RAG, colas, webhook, PDFs, email) sigue madurando y hoy es más capaz que en la revisión anterior, pero la capa de negocio específica de Isabella/Celina (CRM, lotes, mapa, persona) continúa en cero — coherente con que el bloqueador de credenciales de Celina sigue sin resolverse.
+**Conclusión (13-jul-2026, ya superada — ver §7):** el motor genérico (multi-tenant, RAG, colas, webhook, PDFs, email) sigue madurando y hoy es más capaz que en la revisión anterior, pero la capa de negocio específica de Isabella/Celina (CRM, lotes, mapa, persona) continúa en cero — coherente con que el bloqueador de credenciales de Celina sigue sin resolverse.
+
+## 7. Capa de negocio de Isabella completada (actualización posterior)
+
+Contradice la conclusión de §6: la capa de negocio específica ya está implementada en `src/` (no solo el motor genérico):
+
+- **`src/crm/`** — `celina.ts` (interfaz `CelinaClient` + factory `getCelinaClient()` según `env.CELINA_MODE`), `celina.mock.ts` (5 lotes de ejemplo con filtrado por precio/zona/superficie/estado, cálculo de planes de financiamiento), `celina.http.ts` (implementación real read-only contra staging, inactiva hasta credenciales), `auth.ts` (login JWT con caché de token), `models.ts` (`Lot`, `FinancingPlan`, `Quotation`, `LotSearchFilters`, `Lead`).
+- **`src/services/isabella_prompt.ts`** — `system_prompt` con el flujo de 6 pasos de `04_proceso_ventas.md`, con la regla del mapa estático explícita.
+- **`src/services/langgraph_agent.ts`** — 7 tools de negocio: `buscar_lotes`, `detalle_lote`, `consultar_financiamiento`, `generar_imagen_mapa` (nunca expone el link del mapa interactivo), `generar_cotizacion_pdf`, `registrar_lead` (escribe en `xx_clients`, CRM propio de Grupo Paz, no Celina), `escalar_a_humano`.
+- **`src/assets/maps.ts` / `quotes.ts`** — placeholders (`mock://...`) para imagen de mapa y cotización, a la espera de las capturas reales del proyecto y de la plantilla PDF oficial de Celina.
+- Todo con `CELINA_MODE=mock` (default) por el bloqueador de credenciales aún vigente; swap a `http` es solo cambiar la env var una vez lleguen.
+- `npm run typecheck` compila limpio.
+
+**Pendiente real:** probar el flujo completo end-to-end (requiere Postgres + API key, no configurado todavía en este entorno — no hay `.env`); reemplazar los placeholders de mapa/PDF por assets reales cuando Celina entregue credenciales o capturas; conectar `registrar_lead` con el CRM Grupo Paz real si `xx_clients` no es ya ese sistema.
 
 *Documento confidencial*
