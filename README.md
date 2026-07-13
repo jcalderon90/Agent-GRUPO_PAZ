@@ -4,17 +4,17 @@
 Definido para la propuesta de agente de ventas Isabella de RedTec para Grupo Paz.
 
 ## Estado del Proyecto
-**Última actualización:** 09 de Julio, 2026
+**Última actualización:** 13 de Julio, 2026
 
 | Aspecto | Estado |
 |---|---|
 | Propuesta comercial | Enviada (PR-2026-GP01, válida hasta 25-jul-2026) |
-| Bloqueador CRM Celina | Pendiente – credenciales de solo lectura escaladas a TI por Jhon (Celina) |
+| Bloqueador CRM Celina | Pendiente – credenciales de solo lectura escaladas a TI por Jhon (Celina); sigue sin resolverse |
 | Stack tecnológico | **Decidido** – Python + LangGraph + Postgres/pgvector, multi-tenant vía JWT (ver `08_investigacion_tecnologias.md`) |
 | Plataforma unificada (`realstate.redtec.ai`) | En arranque – repositorio base a cargo de Jimmi Pachón y Jorge Calderón |
-| Template Garoo local (`Agent/`) | Revisado – TypeScript/LangGraph genérico, **sin** personalización de Isabella ni integración Celina; discrepancia con el stack Python decidido (ver `09_revision_codigo_agent.md`) |
-| Integración CRM Celina | No iniciada – depende de la resolución del bloqueador de credenciales |
-| Documentos pendientes | `05_arquitectura_integracion.md`, `06_condiciones_servicio.md`, `07_tarea_bloqueadora.md` |
+| Repos `redtec-realstate-api` / `-ux` (Garoo, TypeScript/LangGraph) | Revisados a fondo (código fuente clonado, no solo docs) – motor genérico multi-tenant maduro (5 tools de negocio, webhook multi-canal vía ManyChat, PDFs, colas); tenant `grupopaz` ya referenciado en el seed de admin, pero **sin** personalización de Isabella, sin tools de CRM Celina, sin modelo de "lote"; discrepancia sigue vigente con el stack Python decidido (ver `09_revision_codigo_agent.md`) |
+| Integración CRM Celina | No iniciada – depende de la resolución del bloqueador de credenciales; no existe ningún cliente HTTP hacia la API de Celina en el código revisado |
+| Documentos pendientes | `06_condiciones_servicio.md`, `07_tarea_bloqueadora.md` |
 
 ## Índice de Archivos
 
